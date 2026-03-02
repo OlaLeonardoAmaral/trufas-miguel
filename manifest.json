@@ -1,0 +1,21 @@
+{
+  "name": "Trufas da Mig",
+  "short_name": "Trufas Mig",
+  "description": "Sistema de pedidos de trufas artesanais",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F4EF",
+  "theme_color": "#4A2512",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "utilities"],
+  "lang": "pt-BR"
+}
