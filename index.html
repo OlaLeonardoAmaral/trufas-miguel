@@ -1498,6 +1498,13 @@ function deleteOrder(id) {
 
 function confirmDeleteOrder() {
   if (pendingDeleteId === null) return;
+  const order = orders.find(o => o.id === pendingDeleteId);
+  if (order) {
+    order.items.forEach(i => {
+      const t = truffles.find(x => x.id === i.id);
+      if (t) t.stock += i.qty;
+    });
+  }
   orders = orders.filter(o => o.id !== pendingDeleteId);
   pendingDeleteId = null;
   saveData();
