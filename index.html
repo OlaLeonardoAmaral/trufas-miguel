@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.svg">
 <title>Trufas da Mig</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -1099,6 +1100,111 @@
   /* ── PIX QR styles ── */
   .qr-wrap { text-align: center; padding: 0 0 4px; }
   .qr-label { font-size: 12px; color: var(--text-3); margin-top: 8px; }
+
+  /* ── SETTINGS ── */
+  .settings-section {
+    margin: 16px 16px 0;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .settings-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text-3);
+    padding: 14px 16px 6px;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .settings-row:first-of-type { border-top: none; }
+  .settings-row-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .settings-row-info { flex: 1; min-width: 0; }
+  .settings-row-info .label { font-size: 14px; font-weight: 500; color: var(--text); display: block; }
+  .settings-row-info .value { font-size: 12px; color: var(--text-2); display: block; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .settings-row-info .value.empty { color: var(--danger); }
+  .btn-settings-action {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border-2);
+    background: transparent;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brown);
+    cursor: pointer;
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+  .btn-settings-action:active { background: var(--border); }
+  .btn-settings-action.danger { color: var(--danger); border-color: var(--danger-bg); }
+  .backup-btn {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-top: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .backup-btn:first-of-type { border-top: none; }
+  .backup-btn:active { background: var(--border); }
+  .backup-btn svg { flex-shrink: 0; }
+  .backup-btn .btext { flex: 1; text-align: left; }
+  .backup-btn .bsub { font-size: 12px; font-weight: 400; color: var(--text-2); display: block; margin-top: 1px; }
+  .backup-btn.red { color: var(--danger); }
+
+  /* gear btn on home hero */
+  .btn-hero-icon {
+    position: absolute;
+    top: calc(var(--safe-top) + 14px);
+    right: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,.85);
+    transition: background .15s;
+    z-index: 2;
+  }
+  .btn-hero-icon:active { background: rgba(255,255,255,.25); }
+
+  /* pix not configured warning */
+  .pix-warning {
+    background: #FFF8E1;
+    border: 1px solid #FFD54F;
+    border-radius: var(--radius-xs);
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #7B5800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
 </style>
 </head>
 <body>
@@ -1106,7 +1212,7 @@
 
   <!-- ═══════════════ HOME ═══════════════ -->
   <div id="screen-home" class="screen active">
-    <div class="home-hero">
+    <div class="home-hero" style="position:relative;">
       <div class="home-logo">
         <div class="home-logo-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1121,6 +1227,12 @@
           <span class="sub">Artesanal · Feito com amor</span>
         </div>
       </div>
+      <button class="btn-hero-icon" onclick="navigate('settings')" title="Configurações">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </button>
       <h1 class="home-tagline">Trufas <em>irresistíveis</em>,<br>feitas pra você</h1>
       <p class="home-sub">Escolha suas favoritas e aproveite</p>
     </div>
@@ -1233,12 +1345,16 @@
             <div class="radio-dot"></div>
           </div>
           <div class="pay-card-body" id="pix-body" style="display:none;">
-            <div class="qr-wrap">
+            <div id="pix-not-configured" class="pix-warning" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Chave PIX não configurada. Vá em Configurações para adicionar.
+            </div>
+            <div class="qr-wrap" id="qr-wrap">
               <canvas id="qr-canvas" width="180" height="180"></canvas>
               <div class="qr-label">Escaneie o QR Code com seu banco</div>
             </div>
             <div class="pix-key-box">
-              <span class="key">mig@trufas.com.br</span>
+              <span class="key" id="pix-key-label">—</span>
               <button class="copy-btn" onclick="copyPix(event)">Copiar</button>
             </div>
           </div>
@@ -1368,6 +1484,106 @@
   </div>
 </div>
 
+<!-- ═══════════════ SETTINGS ═══════════════ -->
+<div id="screen-settings" class="screen">
+  <div class="header">
+    <button class="btn-icon" onclick="navigate('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <div class="header-title">Configurações</div>
+    <div style="width:38px"></div>
+  </div>
+
+  <div class="screen-body no-pad-bottom" style="padding-bottom: calc(var(--safe-bottom) + 24px);">
+
+    <!-- PIX -->
+    <div class="settings-section">
+      <div class="settings-section-title">Pagamento via PIX</div>
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:#E0F5F0; color:#00897B;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="settings-row-info">
+          <span class="label">Chave PIX</span>
+          <span class="value" id="pix-key-display">—</span>
+        </div>
+        <button class="btn-settings-action" onclick="openPixModal()">Editar</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:var(--border); color:var(--brown);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="settings-row-info">
+          <span class="label">Nome do recebedor</span>
+          <span class="value" id="pix-name-display">—</span>
+        </div>
+        <button class="btn-settings-action" onclick="openPixModal()">Editar</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-icon" style="background:var(--border); color:var(--brown);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="settings-row-info">
+          <span class="label">Cidade</span>
+          <span class="value" id="pix-city-display">—</span>
+        </div>
+        <button class="btn-settings-action" onclick="openPixModal()">Editar</button>
+      </div>
+    </div>
+
+    <!-- BACKUP -->
+    <div class="settings-section" style="margin-top:12px;">
+      <div class="settings-section-title">Backup dos Dados</div>
+      <button class="backup-btn" onclick="exportBackup()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brown)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span class="btext">Exportar backup
+          <span class="bsub">Baixa um arquivo .json com todos os dados</span>
+        </span>
+      </button>
+      <label class="backup-btn" style="cursor:pointer;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--brown)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="btext">Importar backup
+          <span class="bsub">Restaura dados de um arquivo .json</span>
+        </span>
+        <input type="file" accept=".json" style="display:none;" onchange="importBackup(this)">
+      </label>
+    </div>
+
+    <div style="padding: 12px 16px 0;">
+      <p style="font-size: 12px; color: var(--text-3); line-height: 1.5;">
+        Os dados ficam salvos neste dispositivo. Faça backups regulares para não perder pedidos e estoque em caso de troca de celular ou limpeza de cache.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- PIX MODAL -->
+<div class="modal-overlay" id="pix-modal" onclick="closePixModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Configurar PIX</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <div class="form-label">Chave PIX</div>
+        <input type="text" id="s-pix-key" class="form-input" placeholder="CPF, telefone, e-mail ou chave aleatória">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Nome do recebedor <span style="color:var(--text-3);font-size:11px;">(máx. 25 caracteres)</span></div>
+        <input type="text" id="s-pix-name" class="form-input" placeholder="Ex: Miguel Trufas" maxlength="25">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Cidade <span style="color:var(--text-3);font-size:11px;">(máx. 15 caracteres)</span></div>
+        <input type="text" id="s-pix-city" class="form-input" placeholder="Ex: Sao Paulo" maxlength="15">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closePixModal()">Cancelar</button>
+      <button class="btn-primary" style="flex:1;" onclick="savePixSettings()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM DELETE SHEET -->
 <div class="modal-overlay" id="confirm-delete-overlay" onclick="closeConfirmDelete(event)">
   <div class="modal-sheet">
@@ -1410,6 +1626,7 @@ const DEFAULT_TRUFFLES = [
 
 let truffles = JSON.parse(localStorage.getItem('truffles_mig') || 'null') || JSON.parse(JSON.stringify(DEFAULT_TRUFFLES));
 let orders   = JSON.parse(localStorage.getItem('orders_mig')   || '[]');
+let settings = JSON.parse(localStorage.getItem('settings_mig') || 'null') || { pixKey: '', pixName: '', pixCity: '' };
 let cart     = {}; // { id: qty }
 let payMethod = null;
 let nextId   = Math.max(...truffles.map(t => t.id), 0) + 1;
@@ -1417,6 +1634,10 @@ let nextId   = Math.max(...truffles.map(t => t.id), 0) + 1;
 function saveData() {
   localStorage.setItem('truffles_mig', JSON.stringify(truffles));
   localStorage.setItem('orders_mig', JSON.stringify(orders));
+}
+
+function saveSettings() {
+  localStorage.setItem('settings_mig', JSON.stringify(settings));
 }
 
 // ─────────────────────────────────────────
@@ -1445,10 +1666,11 @@ function navigate(to) {
   }
 
   // Screen init
-  if (to === 'home')    renderHome();
-  if (to === 'order')   renderMenu();
-  if (to === 'summary') renderSummary();
-  if (to === 'admin')   renderAdmin();
+  if (to === 'home')     renderHome();
+  if (to === 'order')    renderMenu();
+  if (to === 'summary')  renderSummary();
+  if (to === 'admin')    renderAdmin();
+  if (to === 'settings') renderSettings();
 }
 
 // ─────────────────────────────────────────
@@ -1672,61 +1894,67 @@ function calcChange() {
 
 function copyPix(e) {
   e.stopPropagation();
-  navigator.clipboard.writeText('mig@trufas.com.br').catch(() => {});
+  if (!settings.pixKey) { showToast('Chave PIX não configurada'); return; }
+  navigator.clipboard.writeText(settings.pixKey).catch(() => {});
   showToast('Chave PIX copiada!');
 }
 
 // ─────────────────────────────────────────
-//  FAKE QR CODE
+//  PIX PAYLOAD (padrão EMV/BCB)
+// ─────────────────────────────────────────
+function tlv(id, value) {
+  return `${id}${value.length.toString().padStart(2, '0')}${value}`;
+}
+
+function crc16Pix(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= (str.charCodeAt(i) << 8);
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+      crc &= 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function generatePixPayload(key, name, city) {
+  if (!key) return null;
+  const safeName = (name || 'TRUFAS').replace(/[^\w ]/g, '').substring(0, 25).toUpperCase() || 'TRUFAS';
+  const safeCity = (city || 'BRASIL').replace(/[^\w ]/g, '').substring(0, 15).toUpperCase() || 'BRASIL';
+  const merchant = tlv('26', tlv('00', 'BR.GOV.BCB.PIX') + tlv('01', key));
+  const additional = tlv('62', tlv('05', '***'));
+  const body = tlv('00','01') + merchant + tlv('52','0000') + tlv('53','986') + tlv('58','BR') + tlv('59', safeName) + tlv('60', safeCity) + additional + '6304';
+  return body + crc16Pix(body);
+}
+
+// ─────────────────────────────────────────
+//  QR CODE
 // ─────────────────────────────────────────
 function drawQR() {
   const canvas = document.getElementById('qr-canvas');
-  const ctx = canvas.getContext('2d');
-  const size = 180;
-  const mod  = 9; // modules per side
-  const cell = size / mod;
+  const warning = document.getElementById('pix-not-configured');
+  const wrap = document.getElementById('qr-wrap');
+  const keyLabel = document.getElementById('pix-key-label');
 
-  ctx.fillStyle = '#FFFFFF';
-  ctx.fillRect(0, 0, size, size);
+  keyLabel.textContent = settings.pixKey || '—';
 
-  // Seed-based random for deterministic pattern
-  let seed = 42;
-  function rand() { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; }
-
-  const data = [];
-  for (let r = 0; r < mod; r++) {
-    data[r] = [];
-    for (let c = 0; c < mod; c++) { data[r][c] = rand() > .45 ? 1 : 0; }
+  if (!settings.pixKey) {
+    warning.style.display = 'flex';
+    wrap.style.display = 'none';
+    return;
   }
 
-  // Finder patterns (corners)
-  [[0,0],[0,mod-3],[mod-3,0]].forEach(([pr,pc]) => {
-    for (let dr = 0; dr < 3; dr++)
-      for (let dc = 0; dc < 3; dc++)
-        data[pr+dr][pc+dc] = (dr===0||dr===2||dc===0||dc===2) ? 1 : 0;
-    data[pr+1][pc+1] = 1;
-  });
+  warning.style.display = 'none';
+  wrap.style.display = 'block';
 
-  ctx.fillStyle = '#1A1208';
-  for (let r = 0; r < mod; r++) {
-    for (let c = 0; c < mod; c++) {
-      if (data[r][c]) {
-        const rx = c * cell + 1;
-        const ry = r * cell + 1;
-        const rw = cell - 2;
-        const rh = cell - 2;
-        const rad = Math.min(2, rw/3);
-        ctx.beginPath();
-        ctx.roundRect(rx, ry, rw, rh, rad);
-        ctx.fill();
-      }
-    }
+  const payload = generatePixPayload(settings.pixKey, settings.pixName, settings.pixCity);
+  if (typeof QRCode !== 'undefined') {
+    QRCode.toCanvas(canvas, payload, {
+      width: 180, margin: 2,
+      color: { dark: '#1A1208', light: '#FFFFFF' }
+    }).catch(console.warn);
   }
-
-  // Border
-  ctx.strokeStyle = '#EDE5DA';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(0.5, 0.5, size-1, size-1);
 }
 
 // ─────────────────────────────────────────
@@ -1908,9 +2136,93 @@ function showToast(msg) {
 }
 
 // ─────────────────────────────────────────
-//  INIT
+//  SETTINGS SCREEN
 // ─────────────────────────────────────────
-renderHome();
+function renderSettings() {
+  const keyEl  = document.getElementById('pix-key-display');
+  const nameEl = document.getElementById('pix-name-display');
+  const cityEl = document.getElementById('pix-city-display');
+
+  keyEl.textContent  = settings.pixKey  || 'Não configurada';
+  nameEl.textContent = settings.pixName || 'Não configurado';
+  cityEl.textContent = settings.pixCity || 'Não configurada';
+
+  keyEl.className  = 'value' + (settings.pixKey  ? '' : ' empty');
+  nameEl.className = 'value' + (settings.pixName ? '' : ' empty');
+  cityEl.className = 'value' + (settings.pixCity ? '' : ' empty');
+}
+
+function openPixModal() {
+  document.getElementById('s-pix-key').value  = settings.pixKey  || '';
+  document.getElementById('s-pix-name').value = settings.pixName || '';
+  document.getElementById('s-pix-city').value = settings.pixCity || '';
+  document.getElementById('pix-modal').classList.add('open');
+}
+
+function closePixModal(e) {
+  if (e && e.target !== document.getElementById('pix-modal')) return;
+  document.getElementById('pix-modal').classList.remove('open');
+}
+
+function savePixSettings() {
+  settings.pixKey  = document.getElementById('s-pix-key').value.trim();
+  settings.pixName = document.getElementById('s-pix-name').value.trim();
+  settings.pixCity = document.getElementById('s-pix-city').value.trim();
+  saveSettings();
+  closePixModal();
+  renderSettings();
+  showToast('Configurações salvas!');
+}
+
+// ─────────────────────────────────────────
+//  BACKUP — EXPORT / IMPORT
+// ─────────────────────────────────────────
+function exportBackup() {
+  const data = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    truffles,
+    orders,
+    settings
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+  a.href = url;
+  a.download = `trufas-mig-backup-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup exportado!');
+}
+
+function importBackup(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!Array.isArray(data.truffles) || !Array.isArray(data.orders)) throw new Error();
+      truffles = data.truffles;
+      orders   = data.orders;
+      if (data.settings) settings = data.settings;
+      nextId = Math.max(...truffles.map(t => t.id), 0) + 1;
+      saveData();
+      saveSettings();
+      renderSettings();
+      showToast('Backup importado com sucesso!');
+    } catch {
+      showToast('Arquivo inválido ou corrompido');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────
+//  COPY PIX KEY
+// ─────────────────────────────────────────
 
 // ─────────────────────────────────────────
 //  VIEWPORT HEIGHT FIX (Android Chrome)
