@@ -316,25 +316,96 @@
     justify-content: space-between;
     border: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: border-color .15s, transform .1s, box-shadow .15s;
   }
 
+  .order-chip:active { transform: scale(.98); box-shadow: none; }
+
+  .order-chip-left { flex: 1; min-width: 0; }
   .order-chip-left .name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
-  .order-chip-left .items { font-size: 12px; color: var(--text-2); }
-  .order-chip-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .order-chip-left .items { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .order-chip-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; margin-left: 12px; }
   .order-chip-right .price { font-size: 15px; font-weight: 700; color: var(--brown); }
   .order-chip-right .date { font-size: 11px; color: var(--text-3); }
-  .btn-delete-order {
-    margin-top: 4px;
-    width: 28px; height: 28px;
-    border-radius: 8px;
+
+  /* ══════════════════════════════════════
+     DETALHES DO PEDIDO
+  ══════════════════════════════════════ */
+  .detail-customer-card {
+    margin: 16px 16px 12px;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+  }
+
+  .detail-customer-card.reserved {
+    border-color: #F5C87A;
+    background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E1 100%);
+  }
+
+  .detail-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .detail-status-badge {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .detail-status-badge.confirmed { background: var(--success-bg); color: var(--success); }
+  .detail-status-badge.reserved  { background: #FFF3CD; color: #7B5800; border: 1px solid #FFD54F; }
+
+  .detail-date { font-size: 12px; color: var(--text-3); }
+
+  .detail-customer-name {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--text);
+    letter-spacing: -.3px;
+    line-height: 1.2;
+  }
+
+  .detail-pay-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+  }
+
+  .detail-pay-row .label { color: var(--text-2); }
+  .detail-pay-row .value { font-weight: 600; color: var(--text); }
+
+  .btn-cancel-reservation {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
     border: none;
     background: var(--danger-bg);
     color: var(--danger);
-    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
     cursor: pointer;
     transition: background .15s, transform .1s;
+    letter-spacing: -.2px;
   }
-  .btn-delete-order:active { transform: scale(.88); background: #f5c6c4; }
+
+  .btn-cancel-reservation:active { transform: scale(.98); background: #f5c6c4; }
+
+  .btn-icon.danger { background: var(--danger-bg); color: var(--danger); }
+  .btn-icon.danger:active { background: #f5c6c4; }
 
   .empty-state {
     text-align: center;
@@ -1568,6 +1639,26 @@
     </button>
   </div>
 
+  <!-- ═══════════════ ORDER DETAIL ═══════════════ -->
+  <div id="screen-order-detail" class="screen">
+    <div class="header">
+      <button class="btn-icon" onclick="navigateBackFromDetail()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title">Detalhes do Pedido</div>
+      <button class="btn-icon danger" onclick="deleteDetailOrder()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    </div>
+    <div class="screen-body no-pad-bottom" style="padding-bottom: calc(var(--safe-bottom) + 24px);">
+      <div id="order-detail-content"></div>
+    </div>
+  </div>
+
   <!-- ═══════════════ ORDERS ═══════════════ -->
   <div id="screen-orders" class="screen">
     <div class="header">
@@ -1746,12 +1837,78 @@
           <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
         </svg>
       </div>
-      <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">Excluir pedido?</div>
+      <div id="confirm-delete-title" style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">Excluir pedido?</div>
       <div style="font-size:14px;color:var(--text-2);line-height:1.5;" id="confirm-delete-desc">Esta ação não pode ser desfeita.</div>
     </div>
     <div class="modal-footer" style="padding: 16px 20px calc(var(--safe-bottom) + 16px);">
       <button class="btn-outline" onclick="closeConfirmDelete()">Cancelar</button>
-      <button class="btn-primary" style="flex:1;background:var(--danger);" onclick="confirmDeleteOrder()">Excluir</button>
+      <button id="confirm-delete-btn" class="btn-primary" style="flex:1;background:var(--danger);" onclick="confirmDeleteOrder()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM RESERVED PAYMENT MODAL -->
+<div class="modal-overlay" id="reserve-confirm-modal" onclick="closeReserveConfirmModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Confirmar Pagamento</div>
+    <div style="max-height:60vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+      <div class="pay-cards" style="padding:16px 16px 8px;">
+        <!-- PIX -->
+        <div class="pay-card" id="rp-pay-pix" onclick="selectRPPayment('pix')">
+          <div class="pay-card-header">
+            <div class="pay-icon pix">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div class="pay-card-label">
+              <span class="title">PIX</span>
+              <span class="desc">Transferência instantânea</span>
+            </div>
+            <div class="radio-dot"></div>
+          </div>
+          <div class="pay-card-body" id="rp-pix-body" style="display:none;">
+            <div id="rp-pix-warning" class="pix-warning" style="display:none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Chave PIX não configurada. Vá em Configurações.
+            </div>
+            <div class="qr-wrap" id="rp-qr-wrap">
+              <div id="rp-qr-canvas"></div>
+              <div class="qr-label">Escaneie o QR Code com seu banco</div>
+            </div>
+            <div class="pix-key-box">
+              <span class="key" id="rp-pix-key-label">—</span>
+              <button class="copy-btn" onclick="copyPixRP(event)">Copiar</button>
+            </div>
+          </div>
+        </div>
+        <!-- Dinheiro -->
+        <div class="pay-card" id="rp-pay-cash" onclick="selectRPPayment('cash')">
+          <div class="pay-card-header">
+            <div class="pay-icon cash">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>
+            </div>
+            <div class="pay-card-label">
+              <span class="title">Dinheiro</span>
+              <span class="desc">Pagamento em espécie</span>
+            </div>
+            <div class="radio-dot"></div>
+          </div>
+          <div class="pay-card-body" id="rp-cash-body" style="display:none;">
+            <div class="cash-input-row">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <input type="number" id="rp-cash-input" class="cash-input" placeholder="Valor recebido" min="0" step="0.01" oninput="calcRPChange()">
+            </div>
+            <div class="change-box" id="rp-change-box" style="display:none;">
+              <span class="change-label">Troco</span>
+              <span class="change-value" id="rp-change-val">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding:12px 20px calc(var(--safe-bottom) + 16px);">
+      <button class="btn-outline" onclick="closeReserveConfirmModal()">Cancelar</button>
+      <button class="btn-primary" id="rp-confirm-btn" onclick="confirmReservedPayment()" style="flex:1;" disabled>Confirmar</button>
     </div>
   </div>
 </div>
@@ -1780,6 +1937,8 @@ let settings = JSON.parse(localStorage.getItem('settings_mig') || 'null') || { p
 let cart     = {}; // { id: qty }
 let payMethod = null;
 let nextId   = Math.max(...truffles.map(t => t.id), 0) + 1;
+let currentDetailOrderId = null;
+let orderDetailOrigin    = 'home';
 
 function saveData() {
   localStorage.setItem('truffles_mig', JSON.stringify(truffles));
@@ -1816,12 +1975,13 @@ function navigate(to) {
   }
 
   // Screen init
-  if (to === 'home')     renderHome();
-  if (to === 'order')    renderMenu();
-  if (to === 'summary')  renderSummary();
-  if (to === 'admin')    renderAdmin();
-  if (to === 'settings') renderSettings();
-  if (to === 'orders')   renderOrders();
+  if (to === 'home')         renderHome();
+  if (to === 'order')        renderMenu();
+  if (to === 'summary')      renderSummary();
+  if (to === 'admin')        renderAdmin();
+  if (to === 'settings')     renderSettings();
+  if (to === 'orders')       renderOrders();
+  if (to === 'order-detail') renderOrderDetail();
 }
 
 // ─────────────────────────────────────────
@@ -1841,34 +2001,100 @@ function renderHome() {
 
 function renderOrderChip(o) {
   const isReserved = o.status === 'reserved';
-  const payLabel = o.payMethod === 'pix' ? 'PIX' : o.payMethod === 'cash' ? 'Dinheiro' : null;
-  const payClass = o.payMethod === 'pix' ? 'pix' : 'cash';
-  // Para pedidos antigos sem cashGiven, deriva do total + change
-  const cashGiven = o.cashGiven != null ? o.cashGiven : (o.change != null ? o.total + o.change : 0);
-  const change    = o.change || 0;
+  const origin = currentScreen === 'orders' ? 'orders' : 'home';
 
-  return `<div class="order-chip${isReserved ? ' reserved' : ''}">
+  return `<div class="order-chip${isReserved ? ' reserved' : ''}" onclick="openOrderDetail(${o.id}, '${origin}')">
     <div class="order-chip-left">
       <div class="name">${o.customer || 'Cliente'}</div>
       <div class="items">${o.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
-      ${o.obs ? `<div class="items" style="margin-top:2px;font-style:italic;">Obs: ${o.obs}</div>` : ''}
-      ${isReserved ? `<span class="reserved-badge">⏳ Reservado</span>` : ''}
+      ${isReserved ? `<span class="reserved-badge" style="display:inline-block;margin-top:5px;">⏳ Reservado</span>` : ''}
     </div>
     <div class="order-chip-right">
       <div class="price">${fmt(o.total)}</div>
       <div class="date">${o.date}</div>
-      ${payLabel ? `<span class="pay-badge ${payClass}">${payLabel}</span>` : ''}
-      ${o.payMethod === 'cash' && cashGiven > 0 ? `<div class="order-chip-info-row">Pago: ${fmt(cashGiven)}</div>` : ''}
-      ${o.payMethod === 'cash' && change > 0 ? `<div class="order-chip-info-row">Troco: ${fmt(change)}</div>` : ''}
-      <button class="btn-delete-order" onclick="deleteOrder(${o.id})" title="Excluir pedido">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-          <path d="M10 11v6"/><path d="M14 11v6"/>
-          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-        </svg>
-      </button>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
   </div>`;
+}
+
+// ─────────────────────────────────────────
+//  ORDER DETAIL
+// ─────────────────────────────────────────
+function openOrderDetail(id, origin) {
+  currentDetailOrderId = id;
+  orderDetailOrigin    = origin || 'home';
+  navigate('order-detail');
+}
+
+function navigateBackFromDetail() {
+  navigate(orderDetailOrigin);
+}
+
+function deleteDetailOrder() {
+  if (currentDetailOrderId) deleteOrder(currentDetailOrderId);
+}
+
+function renderOrderDetail() {
+  const o = orders.find(x => x.id === currentDetailOrderId);
+  if (!o) { navigate(orderDetailOrigin); return; }
+
+  const isReserved = o.status === 'reserved';
+  const cashGiven  = o.cashGiven != null ? o.cashGiven : (o.change != null ? o.total + o.change : 0);
+  const change     = o.change || 0;
+  const payLabel   = o.payMethod === 'pix' ? 'PIX' : o.payMethod === 'cash' ? 'Dinheiro' : null;
+
+  const itemsHTML = o.items.map(i => `
+    <div class="summary-item">
+      <div class="si-qty">${i.qty}</div>
+      <div class="si-name">${i.name}</div>
+      <div class="si-price">${fmt(i.price * i.qty)}</div>
+    </div>`).join('');
+
+  const paySection = (!isReserved && payLabel) ? `
+    <div class="section-card">
+      <div class="section-card-title">Pagamento</div>
+      <div class="detail-pay-row"><span class="label">Forma</span><span class="value">${payLabel}</span></div>
+      ${o.payMethod === 'cash' && cashGiven > 0 ? `<div class="detail-pay-row"><span class="label">Pago</span><span class="value">${fmt(cashGiven)}</span></div>` : ''}
+      ${o.payMethod === 'cash' && change > 0 ? `<div class="detail-pay-row"><span class="label">Troco</span><span class="value">${fmt(change)}</span></div>` : ''}
+    </div>` : '';
+
+  const obsSection = o.obs ? `
+    <div class="section-card">
+      <div class="section-card-title">Observação</div>
+      <div style="padding:10px 16px 14px;font-size:14px;color:var(--text-2);font-style:italic;">${o.obs}</div>
+    </div>` : '';
+
+  const actionsSection = isReserved ? `
+    <div style="padding:0 16px 24px;">
+      <button class="btn-primary" onclick="openReserveConfirmModal()" style="width:100%;margin-bottom:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirmar Pagamento
+      </button>
+      <button class="btn-cancel-reservation" onclick="deleteDetailOrder()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar Reserva
+      </button>
+    </div>` : '';
+
+  document.getElementById('order-detail-content').innerHTML = `
+    <div class="detail-customer-card${isReserved ? ' reserved' : ''}">
+      <div class="detail-status-row">
+        <span class="detail-status-badge ${isReserved ? 'reserved' : 'confirmed'}">${isReserved ? '⏳ Reservado' : '✓ Confirmado'}</span>
+        <span class="detail-date">${o.date}</span>
+      </div>
+      <div class="detail-customer-name">${o.customer || 'Cliente'}</div>
+    </div>
+
+    <div class="section-card" style="margin-top:0;">
+      <div class="section-card-title">Itens do Pedido</div>
+      <div class="summary-items" style="padding-top:0;">${itemsHTML}</div>
+      <div class="total-row main"><span>Total</span><span>${fmt(o.total)}</span></div>
+    </div>
+
+    ${paySection}
+    ${obsSection}
+    ${actionsSection}
+  `;
 }
 
 let pendingDeleteId = null;
@@ -1877,8 +2103,22 @@ function deleteOrder(id) {
   const order = orders.find(o => o.id === id);
   if (!order) return;
   pendingDeleteId = id;
-  const desc = `Pedido de ${order.customer || 'Cliente'} — ${fmt(order.total)}`;
-  document.getElementById('confirm-delete-desc').textContent = desc;
+
+  const isReserved = order.status === 'reserved';
+  const titleEl = document.getElementById('confirm-delete-title');
+  const btnEl   = document.getElementById('confirm-delete-btn');
+
+  if (isReserved) {
+    if (titleEl) titleEl.textContent = 'Cancelar reserva?';
+    document.getElementById('confirm-delete-desc').textContent =
+      `Reserva de ${order.customer || 'Cliente'} · Os itens voltam ao estoque.`;
+    if (btnEl) btnEl.textContent = 'Cancelar Reserva';
+  } else {
+    if (titleEl) titleEl.textContent = 'Excluir pedido?';
+    document.getElementById('confirm-delete-desc').textContent =
+      `Pedido de ${order.customer || 'Cliente'} — ${fmt(order.total)}`;
+    if (btnEl) btnEl.textContent = 'Excluir';
+  }
   document.getElementById('confirm-delete-overlay').classList.add('open');
 }
 
@@ -1898,6 +2138,8 @@ function confirmDeleteOrder() {
   if (currentScreen === 'orders') {
     renderOrdersStats();
     renderOrdersList();
+  } else if (currentScreen === 'order-detail') {
+    navigate(orderDetailOrigin || 'home');
   } else {
     renderHome();
   }
@@ -2528,8 +2770,113 @@ function renderOrdersList() {
 }
 
 // ─────────────────────────────────────────
-//  COPY PIX KEY
+//  CONFIRMAR PAGAMENTO DE RESERVA (modal)
 // ─────────────────────────────────────────
+let rpPayMethod = null;
+
+function openReserveConfirmModal() {
+  rpPayMethod = null;
+  document.querySelectorAll('#reserve-confirm-modal .pay-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('rp-pix-body').style.display  = 'none';
+  document.getElementById('rp-cash-body').style.display = 'none';
+  document.getElementById('rp-cash-input').value        = '';
+  document.getElementById('rp-change-box').style.display = 'none';
+  document.getElementById('rp-confirm-btn').disabled    = true;
+  document.getElementById('reserve-confirm-modal').classList.add('open');
+}
+
+function closeReserveConfirmModal(e) {
+  if (e && e.target !== document.getElementById('reserve-confirm-modal')) return;
+  document.getElementById('reserve-confirm-modal').classList.remove('open');
+}
+
+function selectRPPayment(method) {
+  rpPayMethod = method;
+  document.querySelectorAll('#reserve-confirm-modal .pay-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('rp-pix-body').style.display  = 'none';
+  document.getElementById('rp-cash-body').style.display = 'none';
+  document.getElementById('rp-pay-' + method).classList.add('selected');
+
+  if (method === 'pix') {
+    document.getElementById('rp-pix-body').style.display = 'block';
+    const keyLabel  = document.getElementById('rp-pix-key-label');
+    const wrap      = document.getElementById('rp-qr-wrap');
+    const warning   = document.getElementById('rp-pix-warning');
+    keyLabel.textContent = settings.pixKey || '—';
+
+    if (!settings.pixKey) {
+      warning.style.display = 'flex';
+      wrap.style.display    = 'none';
+    } else {
+      warning.style.display = 'none';
+      wrap.style.display    = 'block';
+      const payload = generatePixPayload(settings.pixKey, settings.pixName, settings.pixCity);
+      requestAnimationFrame(() => setTimeout(() => {
+        const container = document.getElementById('rp-qr-canvas');
+        container.innerHTML = '';
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(container, { text: payload, width: 180, height: 180,
+            colorDark: '#1A1208', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+        }
+      }, 50));
+    }
+    document.getElementById('rp-confirm-btn').disabled = false;
+  } else {
+    document.getElementById('rp-cash-body').style.display = 'block';
+    updateRPConfirmBtn();
+  }
+}
+
+function calcRPChange() {
+  const order = orders.find(o => o.id === currentDetailOrderId);
+  if (!order) return;
+  const given  = parseFloat(document.getElementById('rp-cash-input').value) || 0;
+  const change = given - order.total;
+  const box    = document.getElementById('rp-change-box');
+  const val    = document.getElementById('rp-change-val');
+
+  if (given <= 0) { box.style.display = 'none'; }
+  else {
+    box.style.display = 'flex';
+    val.className     = 'change-value ' + (change >= 0 ? 'ok' : 'short');
+    val.textContent   = change >= 0 ? fmt(change) : `Falta ${fmt(Math.abs(change))}`;
+  }
+  updateRPConfirmBtn();
+}
+
+function updateRPConfirmBtn() {
+  const btn   = document.getElementById('rp-confirm-btn');
+  const order = orders.find(o => o.id === currentDetailOrderId);
+  if (!rpPayMethod || !order) { btn.disabled = true; return; }
+  if (rpPayMethod === 'pix')  { btn.disabled = false; return; }
+  const given = parseFloat(document.getElementById('rp-cash-input').value) || 0;
+  btn.disabled = given < order.total;
+}
+
+function confirmReservedPayment() {
+  const order = orders.find(o => o.id === currentDetailOrderId);
+  if (!order || !rpPayMethod) return;
+
+  const given  = rpPayMethod === 'cash' ? (parseFloat(document.getElementById('rp-cash-input').value) || 0) : 0;
+  const change = rpPayMethod === 'cash' ? given - order.total : null;
+
+  order.payMethod = rpPayMethod;
+  order.cashGiven = rpPayMethod === 'cash' ? given : null;
+  order.change    = change;
+  order.status    = 'confirmed';
+
+  saveData();
+  closeReserveConfirmModal();
+  renderOrderDetail();
+  showToast('Pagamento confirmado!');
+}
+
+function copyPixRP(e) {
+  e.stopPropagation();
+  if (!settings.pixKey) { showToast('Chave PIX não configurada'); return; }
+  navigator.clipboard.writeText(settings.pixKey).catch(() => {});
+  showToast('Chave PIX copiada!');
+}
 
 // ─────────────────────────────────────────
 //  VIEWPORT HEIGHT FIX (Android Chrome)
