@@ -1796,7 +1796,16 @@ function setQty(id, delta) {
   const next = Math.max(0, Math.min(t.stock, cur + delta));
   if (next === 0) delete cart[id];
   else cart[id] = next;
-  renderMenu();
+
+  // Atualiza só o card afetado, sem re-renderizar tudo
+  const card = document.getElementById('mc-' + id);
+  if (card) {
+    card.classList.toggle('in-cart', next > 0);
+    card.querySelector('.qty-val').textContent = next;
+    card.querySelector('.qty-btn.minus').disabled = next === 0;
+    card.querySelector('.qty-btn.plus').disabled  = next >= t.stock;
+  }
+  updateCartBar();
 }
 
 function updateCartBar() {
