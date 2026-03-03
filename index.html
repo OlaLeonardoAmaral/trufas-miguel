@@ -1193,6 +1193,126 @@
   }
   .btn-hero-icon:active { background: rgba(255,255,255,.25); }
 
+  /* ══════════════════════════════════════
+     TELA TODOS OS PEDIDOS
+  ══════════════════════════════════════ */
+  .stats-banner {
+    background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
+    padding: 20px;
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .stat-card {
+    flex: 1;
+    background: rgba(255,255,255,.12);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.15);
+  }
+
+  .stat-card .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+    letter-spacing: -.4px;
+  }
+
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,.6);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border-2);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-2);
+    transition: all .15s;
+    flex-shrink: 0;
+  }
+
+  .filter-pill.active { background: var(--brown); border-color: var(--brown); color: #fff; }
+
+  /* Order chip — reservado */
+  .order-chip.reserved {
+    border-color: #F5C87A;
+    background: linear-gradient(135deg, #FFFBF0 0%, #FFF8E1 100%);
+  }
+
+  .reserved-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #FFF3CD;
+    color: #7B5800;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid #FFD54F;
+    margin-top: 5px;
+  }
+
+  .pay-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+  }
+
+  .pay-badge.pix  { background: #E0F5F0; color: #00897B; }
+  .pay-badge.cash { background: var(--success-bg); color: var(--success); }
+
+  .order-chip-info-row { font-size: 11px; color: var(--text-2); }
+
+  /* Botão Reservar */
+  .btn-reserve {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--caramel);
+    background: transparent;
+    color: var(--caramel);
+    font-family: var(--font);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    letter-spacing: -.2px;
+    margin-bottom: 10px;
+  }
+
+  .btn-reserve:active { transform: scale(.98); background: rgba(201,114,14,.06); }
+
   /* pix not configured warning */
   .pix-warning {
     background: #FFF8E1;
@@ -1264,6 +1384,7 @@
 
       <div class="section-header" style="padding-top: 4px;">
         <div class="section-title">Pedidos Recentes</div>
+        <div class="section-link" onclick="navigate('orders')">Ver todos</div>
       </div>
 
       <div class="orders-list" id="recent-orders-list">
@@ -1394,6 +1515,9 @@
     </div>
 
     <div class="confirm-btn-wrap">
+      <button class="btn-reserve" onclick="reserveOrder()">
+        Reservar Pedido
+      </button>
       <button class="btn-primary" id="confirm-btn" onclick="confirmOrder()" disabled>
         Confirmar Pagamento
       </button>
@@ -1442,6 +1566,31 @@
     <button class="fab" onclick="openModal()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </button>
+  </div>
+
+  <!-- ═══════════════ ORDERS ═══════════════ -->
+  <div id="screen-orders" class="screen">
+    <div class="header">
+      <button class="btn-icon" onclick="navigate('home')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="header-title">Todos os Pedidos</div>
+      <div style="width:38px"></div>
+    </div>
+
+    <div class="stats-banner" id="orders-stats"></div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active" id="filter-all"       onclick="setOrdersFilter('all')">Todos</button>
+      <button class="filter-pill"        id="filter-confirmed" onclick="setOrdersFilter('confirmed')">Confirmados</button>
+      <button class="filter-pill"        id="filter-reserved"  onclick="setOrdersFilter('reserved')">Reservados</button>
+      <button class="filter-pill"        id="filter-pix"       onclick="setOrdersFilter('pix')">PIX</button>
+      <button class="filter-pill"        id="filter-cash"      onclick="setOrdersFilter('cash')">Dinheiro</button>
+    </div>
+
+    <div class="screen-body no-pad-bottom" style="padding-bottom: calc(var(--safe-bottom) + 24px);">
+      <div class="orders-list" id="all-orders-list" style="padding-top: 16px;"></div>
+    </div>
   </div>
 
   <!-- ═══════════════ CART BAR ═══════════════ -->
@@ -1672,6 +1821,7 @@ function navigate(to) {
   if (to === 'summary')  renderSummary();
   if (to === 'admin')    renderAdmin();
   if (to === 'settings') renderSettings();
+  if (to === 'orders')   renderOrders();
 }
 
 // ─────────────────────────────────────────
@@ -1686,26 +1836,39 @@ function renderHome() {
     </div>`;
     return;
   }
-  list.innerHTML = orders.slice(-5).reverse().map(o => `
-    <div class="order-chip">
-      <div class="order-chip-left">
-        <div class="name">${o.customer || 'Cliente'}</div>
-        <div class="items">${o.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
-        ${o.obs ? `<div class="items" style="margin-top:2px;font-style:italic;">Obs: ${o.obs}</div>` : ''}
-      </div>
-      <div class="order-chip-right">
-        <div class="price">${fmt(o.total)}</div>
-        <div class="date">${o.date}</div>
-        <button class="btn-delete-order" onclick="deleteOrder(${o.id})" title="Excluir pedido">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-            <path d="M10 11v6"/><path d="M14 11v6"/>
-            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-          </svg>
-        </button>
-      </div>
+  list.innerHTML = orders.slice(-5).reverse().map(o => renderOrderChip(o)).join('');
+}
+
+function renderOrderChip(o) {
+  const isReserved = o.status === 'reserved';
+  const payLabel = o.payMethod === 'pix' ? 'PIX' : o.payMethod === 'cash' ? 'Dinheiro' : null;
+  const payClass = o.payMethod === 'pix' ? 'pix' : 'cash';
+  // Para pedidos antigos sem cashGiven, deriva do total + change
+  const cashGiven = o.cashGiven != null ? o.cashGiven : (o.change != null ? o.total + o.change : 0);
+  const change    = o.change || 0;
+
+  return `<div class="order-chip${isReserved ? ' reserved' : ''}">
+    <div class="order-chip-left">
+      <div class="name">${o.customer || 'Cliente'}</div>
+      <div class="items">${o.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
+      ${o.obs ? `<div class="items" style="margin-top:2px;font-style:italic;">Obs: ${o.obs}</div>` : ''}
+      ${isReserved ? `<span class="reserved-badge">⏳ Reservado</span>` : ''}
     </div>
-  `).join('');
+    <div class="order-chip-right">
+      <div class="price">${fmt(o.total)}</div>
+      <div class="date">${o.date}</div>
+      ${payLabel ? `<span class="pay-badge ${payClass}">${payLabel}</span>` : ''}
+      ${o.payMethod === 'cash' && cashGiven > 0 ? `<div class="order-chip-info-row">Pago: ${fmt(cashGiven)}</div>` : ''}
+      ${o.payMethod === 'cash' && change > 0 ? `<div class="order-chip-info-row">Troco: ${fmt(change)}</div>` : ''}
+      <button class="btn-delete-order" onclick="deleteOrder(${o.id})" title="Excluir pedido">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/><path d="M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+      </button>
+    </div>
+  </div>`;
 }
 
 let pendingDeleteId = null;
@@ -1732,7 +1895,12 @@ function confirmDeleteOrder() {
   pendingDeleteId = null;
   saveData();
   closeConfirmDelete();
-  renderHome();
+  if (currentScreen === 'orders') {
+    renderOrdersStats();
+    renderOrdersList();
+  } else {
+    renderHome();
+  }
   showToast('Pedido removido');
 }
 
@@ -2014,7 +2182,9 @@ function confirmOrder() {
     items,
     total,
     payMethod,
+    cashGiven: payMethod === 'cash' ? given : null,
     change,
+    status: 'confirmed',
     date: new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })
   };
 
@@ -2040,6 +2210,44 @@ function confirmOrder() {
 
 function newOrder() {
   cart = {};
+  navigate('home');
+}
+
+function reserveOrder() {
+  const items = Object.entries(cart).map(([id, qty]) => {
+    const t = truffles.find(x => x.id == id);
+    return { id: t.id, name: t.name, qty, price: t.price };
+  });
+
+  if (!items.length) { showToast('Carrinho vazio'); return; }
+
+  const total    = cartTotal();
+  const customer = document.getElementById('customer-name').value.trim() || 'Cliente';
+  const obs      = document.getElementById('order-obs').value.trim();
+
+  // Reserva deduz estoque (itens ficam separados)
+  items.forEach(i => {
+    const t = truffles.find(x => x.id === i.id);
+    if (t) t.stock = Math.max(0, t.stock - i.qty);
+  });
+
+  const order = {
+    id: Date.now(),
+    customer,
+    obs,
+    items,
+    total,
+    payMethod: null,
+    cashGiven: null,
+    change: null,
+    status: 'reserved',
+    date: new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })
+  };
+
+  orders.push(order);
+  saveData();
+  cart = {};
+  showToast(`Pedido reservado para ${customer}!`);
   navigate('home');
 }
 
@@ -2246,6 +2454,77 @@ function importBackup(input) {
     input.value = '';
   };
   reader.readAsText(file);
+}
+
+// ─────────────────────────────────────────
+//  TELA TODOS OS PEDIDOS
+// ─────────────────────────────────────────
+let ordersFilter = 'all';
+
+function renderOrders() {
+  ordersFilter = 'all';
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  const allBtn = document.getElementById('filter-all');
+  if (allBtn) allBtn.classList.add('active');
+  renderOrdersStats();
+  renderOrdersList();
+}
+
+function renderOrdersStats() {
+  const confirmed = orders.filter(o => o.status !== 'reserved');
+  const totalArrecadado = confirmed.reduce((sum, o) => sum + o.total, 0);
+  const reserved = orders.filter(o => o.status === 'reserved').length;
+  const statsEl = document.getElementById('orders-stats');
+  if (!statsEl) return;
+  statsEl.innerHTML = `
+    <div class="stat-card">
+      <span class="stat-value">${orders.length}</span>
+      <span class="stat-label">Pedidos totais</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">${fmt(totalArrecadado)}</span>
+      <span class="stat-label">Arrecadado</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">${reserved}</span>
+      <span class="stat-label">Reservados</span>
+    </div>
+  `;
+}
+
+function setOrdersFilter(filter) {
+  ordersFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  const btn = document.getElementById('filter-' + filter);
+  if (btn) btn.classList.add('active');
+  renderOrdersList();
+}
+
+function renderOrdersList() {
+  const list = document.getElementById('all-orders-list');
+  if (!list) return;
+
+  let filtered = [...orders].reverse();
+
+  if (ordersFilter === 'confirmed') {
+    filtered = filtered.filter(o => o.status !== 'reserved');
+  } else if (ordersFilter === 'reserved') {
+    filtered = filtered.filter(o => o.status === 'reserved');
+  } else if (ordersFilter === 'pix') {
+    filtered = filtered.filter(o => o.payMethod === 'pix');
+  } else if (ordersFilter === 'cash') {
+    filtered = filtered.filter(o => o.payMethod === 'cash');
+  }
+
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <p>Nenhum pedido encontrado</p>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(o => renderOrderChip(o)).join('');
 }
 
 // ─────────────────────────────────────────
