@@ -1,19 +1,16 @@
-const CACHE = 'trufas-mig-v1';
-const ASSETS = [
-  './index.html',
-  './manifest.json',
-  './icon.svg',
+const CACHE = 'trufas-mig-v2';
+const CDN_ASSETS = [
+  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
   'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap'
 ];
 
 // Instala e faz cache dos assets essenciais
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE).then(cache => {
-      // Cacheia os assets locais primeiro (críticos), fontes opcionalmente
-      return cache.addAll(['./index.html', './manifest.json', './icon.svg'])
-        .then(() => cache.add(ASSETS[3]).catch(() => {})); // fontes: falha silenciosa
-    }).then(() => self.skipWaiting())
+    caches.open(CACHE).then(cache =>
+      cache.addAll(['./index.html', './manifest.json', './icon.svg'])
+        .then(() => Promise.allSettled(CDN_ASSETS.map(url => cache.add(url)))) // CDN: falha silenciosa
+    ).then(() => self.skipWaiting())
   );
 });
 
@@ -33,8 +30,8 @@ self.addEventListener('fetch', event => {
   // Ignora requisições não-GET
   if (event.request.method !== 'GET') return;
 
-  // Fontes do Google: network-first com fallback no cache
-  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+  // CDN externos (fontes + qrcode): network-first com fallback no cache
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com' || url.hostname === 'cdnjs.cloudflare.com') {
     event.respondWith(
       fetch(event.request)
         .then(res => {

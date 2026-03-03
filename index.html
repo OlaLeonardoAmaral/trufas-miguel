@@ -11,7 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.svg">
 <title>Trufas da Mig</title>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -708,7 +708,8 @@
   .pay-card-body { padding: 0 16px 16px; }
 
   /* QR CODE */
-  #qr-canvas { display: block; margin: 8px auto 0; border-radius: 8px; }
+  #qr-canvas { width: 180px; height: 180px; margin: 8px auto 0; border-radius: 8px; overflow: hidden; }
+  #qr-canvas canvas, #qr-canvas img { display: block; border-radius: 8px; }
 
   .pix-key-box {
     margin-top: 10px;
@@ -1350,7 +1351,7 @@
               Chave PIX não configurada. Vá em Configurações para adicionar.
             </div>
             <div class="qr-wrap" id="qr-wrap">
-              <canvas id="qr-canvas" width="180" height="180"></canvas>
+              <div id="qr-canvas"></div>
               <div class="qr-label">Escaneie o QR Code com seu banco</div>
             </div>
             <div class="pix-key-box">
@@ -1858,7 +1859,8 @@ function selectPayment(method) {
 
   if (method === 'pix') {
     document.getElementById('pix-body').style.display = 'block';
-    drawQR();
+    // aguarda o navegador renderizar o elemento antes de desenhar no canvas
+    requestAnimationFrame(() => setTimeout(drawQR, 50));
   } else {
     document.getElementById('cash-body').style.display = 'block';
   }
@@ -1932,10 +1934,10 @@ function generatePixPayload(key, name, city) {
 //  QR CODE
 // ─────────────────────────────────────────
 function drawQR() {
-  const canvas = document.getElementById('qr-canvas');
-  const warning = document.getElementById('pix-not-configured');
-  const wrap = document.getElementById('qr-wrap');
-  const keyLabel = document.getElementById('pix-key-label');
+  const container = document.getElementById('qr-canvas');
+  const warning   = document.getElementById('pix-not-configured');
+  const wrap      = document.getElementById('qr-wrap');
+  const keyLabel  = document.getElementById('pix-key-label');
 
   keyLabel.textContent = settings.pixKey || '—';
 
@@ -1949,12 +1951,29 @@ function drawQR() {
   wrap.style.display = 'block';
 
   const payload = generatePixPayload(settings.pixKey, settings.pixName, settings.pixCity);
-  if (typeof QRCode !== 'undefined') {
-    QRCode.toCanvas(canvas, payload, {
-      width: 180, margin: 2,
-      color: { dark: '#1A1208', light: '#FFFFFF' }
-    }).catch(console.warn);
+
+  if (typeof QRCode === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload = () => renderQROnCanvas(container, payload);
+    s.onerror = () => showToast('Sem conexão para carregar QR Code');
+    document.head.appendChild(s);
+    return;
   }
+
+  renderQROnCanvas(container, payload);
+}
+
+function renderQROnCanvas(container, payload) {
+  container.innerHTML = ''; // limpa QR anterior
+  new QRCode(container, {
+    text: payload,
+    width: 180,
+    height: 180,
+    colorDark: '#1A1208',
+    colorLight: '#FFFFFF',
+    correctLevel: QRCode.CorrectLevel.M
+  });
 }
 
 // ─────────────────────────────────────────
