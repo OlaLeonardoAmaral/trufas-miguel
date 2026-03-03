@@ -2892,6 +2892,25 @@ window.addEventListener('resize', fixViewportHeight);
 window.addEventListener('orientationchange', () => setTimeout(fixViewportHeight, 300));
 
 // ─────────────────────────────────────────
+//  INIT — renderiza home na carga inicial
+// ─────────────────────────────────────────
+renderHome();
+
+// ─────────────────────────────────────────
+//  BLOQUEAR ZOOM (iOS ignora user-scalable)
+// ─────────────────────────────────────────
+document.addEventListener('touchmove', function(e) {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
+let _lastTap = 0;
+document.addEventListener('touchend', function(e) {
+  const now = Date.now();
+  if (now - _lastTap < 300) e.preventDefault();
+  _lastTap = now;
+}, false);
+
+// ─────────────────────────────────────────
 //  SERVICE WORKER (PWA)
 // ─────────────────────────────────────────
 if ('serviceWorker' in navigator) {
