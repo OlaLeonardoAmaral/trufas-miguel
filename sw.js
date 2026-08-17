@@ -1,4 +1,4 @@
-const CACHE = 'trufas-mig-v2';
+const CACHE = 'trufas-mig-v10';
 const CDN_ASSETS = [
   'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
   'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap'
@@ -8,8 +8,32 @@ const CDN_ASSETS = [
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE).then(cache =>
-      cache.addAll(['./index.html', './manifest.json', './icon.svg'])
-        .then(() => Promise.allSettled(CDN_ASSETS.map(url => cache.add(url)))) // CDN: falha silenciosa
+      cache.addAll([
+        './',
+        './index.html',
+        './manifest.json',
+        './icon.svg',
+        './css/base.css',
+        './css/shell.css',
+        './css/sales.css',
+        './css/admin.css',
+        './css/overlays.css',
+        './css/settings.css',
+        './css/orders.css',
+        './css/batches.css',
+        './js/constants.js',
+        './js/storage.js',
+        './js/utils.js',
+        './js/domain.js',
+        './js/backup.js',
+        './js/app.js'
+      ])
+        .then(() => Promise.allSettled(CDN_ASSETS.map(url =>
+          fetch(url).then(response => {
+            if (!response.ok || response.status !== 200) throw new Error(`Resposta inválida: ${response.status}`);
+            return cache.put(url, response);
+          })
+        ))) // CDN: falha silenciosa e nunca armazena resposta de erro
     ).then(() => self.skipWaiting())
   );
 });
@@ -35,8 +59,10 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       fetch(event.request)
         .then(res => {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(event.request, clone));
+          if (res.ok && res.status === 200) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(event.request, clone));
+          }
           return res;
         })
         .catch(() => caches.match(event.request))

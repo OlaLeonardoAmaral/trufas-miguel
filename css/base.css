@@ -1,0 +1,48 @@
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #F7F4EF;
+    --card: #FFFFFF;
+    --brown: #4A2512;
+    --brown-light: #6B3A1F;
+    --caramel: #C9720E;
+    --caramel-light: #E8903A;
+    --success: #1E6B35;
+    --success-bg: #E8F5ED;
+    --danger: #B5271E;
+    --danger-bg: #FDECEA;
+    --text: #1A1208;
+    --text-2: #6B5E50;
+    --text-3: #A89A8E;
+    --border: #EDE5DA;
+    --border-2: #D9CEC3;
+    --shadow-sm: 0 1px 3px rgba(74,37,18,.08), 0 1px 2px rgba(74,37,18,.05);
+    --shadow: 0 4px 12px rgba(74,37,18,.10), 0 2px 4px rgba(74,37,18,.06);
+    --shadow-lg: 0 12px 32px rgba(74,37,18,.14), 0 4px 8px rgba(74,37,18,.08);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 8px;
+    --font: 'DM Sans', system-ui, sans-serif;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html {
+    height: 100%;
+    background: #E8E0D5;
+  }
+
+  body {
+    height: 100%;
+    margin: 0;
+    background: #E8E0D5;
+    font-family: var(--font);
+    color: var(--text);
+    overscroll-behavior: none;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+

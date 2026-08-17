@@ -1,0 +1,92 @@
+  /* ── SETTINGS ── */
+  .settings-section {
+    margin: 16px 16px 0;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .settings-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text-3);
+    padding: 14px 16px 6px;
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+  .settings-row:first-of-type { border-top: none; }
+  .settings-row-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .settings-row-info { flex: 1; min-width: 0; }
+  .settings-row-info .label { font-size: 14px; font-weight: 500; color: var(--text); display: block; }
+  .settings-row-info .value { font-size: 12px; color: var(--text-2); display: block; margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .settings-row-info .value.empty { color: var(--danger); }
+  .btn-settings-action {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border-2);
+    background: transparent;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brown);
+    cursor: pointer;
+    transition: background .15s;
+    flex-shrink: 0;
+  }
+  .btn-settings-action:active { background: var(--border); }
+  .btn-settings-action.danger { color: var(--danger); border-color: var(--danger-bg); }
+  .backup-btn {
+    width: 100%;
+    padding: 14px 16px;
+    border: none;
+    background: transparent;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brown);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    border-top: 1px solid var(--border);
+    transition: background .15s;
+  }
+  .backup-btn:first-of-type { border-top: none; }
+  .backup-btn:active { background: var(--border); }
+  .backup-btn svg { flex-shrink: 0; }
+  .backup-btn .btext { flex: 1; text-align: left; }
+  .backup-btn .bsub { font-size: 12px; font-weight: 400; color: var(--text-2); display: block; margin-top: 1px; }
+  .backup-btn.red { color: var(--danger); }
+
+  /* gear btn on home hero */
+  .btn-hero-icon {
+    position: absolute;
+    top: calc(var(--safe-top) + 14px);
+    right: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: rgba(255,255,255,.85);
+    transition: background .15s;
+    z-index: 2;
+  }
+  .btn-hero-icon:active { background: rgba(255,255,255,.25); }
+
+  /* ══════════════════════════════════════
